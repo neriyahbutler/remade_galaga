@@ -49,8 +49,6 @@ while game_bool:
     
     if inGameStartMenu:
         game_start_menu(score_menu_y_pos, galaga_logo_iter)
-        # if score_menu_y_pos < 10:
-        #     galaga_logo_iter += 1
         if galaga_logo_iter > 2:
             galaga_logo_iter = 0
     elif gameStart:
@@ -64,6 +62,7 @@ while game_bool:
         if enemies_entering:
             for entry in init_fleet_dive:
                 if init_fleet_dive.index(entry) == entry_index:
+                    if init_fleet_dive.index(entry) == 5: print(entry)
                     for type in entry.keys():
                         count = 0
                         for i in range(len(entry[type])):
@@ -83,10 +82,10 @@ while game_bool:
                                     fleet[type][obj_index].dive(win)
                                 else:
                                     if fleet[type][obj_index].x == fleet[type][obj_index].init_pos[0] and fleet[type][obj_index].y == fleet[type][obj_index].init_pos[1]:
-                                        fleet[type][obj_index].status = "None"
                                         if init_fleet_dive.index(entry) != 2:
                                             count += 1
-                                            print("Status of", obj_index, "of type", type, "set to", fleet[type][obj_index].status)
+                                            if type == "bee":
+                                                print("Status of", obj_index, "of type", type, "set to", fleet[type][obj_index].status)
                                         else:
                                             if (type + str(obj_index)) not in mixed_type_used_index:
                                                 mixed_type_used_index.append((type + str(obj_index)))
@@ -95,8 +94,7 @@ while game_bool:
                                             entry[type] = []
                                             entry_index += 1
                                             print("Diving complete", type)
-                                            if entry_index >= 5:
-                                                print("Index is at 5")
+                                            if entry_index > 5:
                                                 enemies_entering = False
                                                 diving_sequence = True
                                         elif mixed_count == 8 and init_fleet_dive.index(entry) == 2:
@@ -107,7 +105,6 @@ while game_bool:
                                     else:
                                         fleet[type][obj_index].move_to_init_pos()
         elif diving_sequence:
-            print("Running dive sequence code")
             if not deathBoolean:
                 if not firstDiveDone or not secondDiveDone:
                     if prevDiveTime == 0:
@@ -129,10 +126,6 @@ while game_bool:
                     obj.dive(win)
                 if not obj.getDead() and obj.x != 0 and obj.y != 0:
                     obj.draw(win)
-                # array_temp = []
-        #         for curve in obj.curve_queue:
-        #             generate_bezier_points(curve)
-        # pygame.draw.lines(win, (255, 0, 0), False, curve_array, 1)
 
         if player.get_state() == "Capturing":
             player.draw(enemy_boss.get_pos())
