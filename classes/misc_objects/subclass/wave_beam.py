@@ -1,10 +1,17 @@
 from classes.misc_objects.subclass.object import Object
 
+import os
 import pygame
 
-wave_beam = [pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/boss/boss_beam1.png"),
-            pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/boss/boss_beam2.png"),
-            pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/boss/boss_beam3.png")]
+base_path = os.path.dirname(os.path.abspath(__file__))
+
+image_path_1 = os.path.join(base_path, "../../../sprites/enemy/boss/boss_beam1.png")
+image_path_2 = os.path.join(base_path, "../../../sprites/enemy/boss/boss_beam2.png")
+image_path_3 = os.path.join(base_path, "../../../sprites/enemy/boss/boss_beam3.png")
+
+wave_beam = [pygame.image.load(image_path_1),
+            pygame.image.load(image_path_2),
+            pygame.image.load(image_path_3)]
 
 wave_beam[0] = pygame.transform.scale(wave_beam[0], (96, 160))
 wave_beam[1] = pygame.transform.scale(wave_beam[1], (96, 160))

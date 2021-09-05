@@ -1,3 +1,9 @@
+import sys
+
+from os.path import dirname, abspath
+d = dirname(dirname(dirname(abspath(__file__))))
+sys.path.append(d)
+
 class Object(object):
     x = 0
     y = 0

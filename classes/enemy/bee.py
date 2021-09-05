@@ -1,3 +1,5 @@
+import os
+
 from classes.enemy.subclass.enemy_explosion import Explosion
 from math import exp
 from classes.enemy.enemy import Enemy
@@ -5,20 +7,29 @@ from classes.enemy.enemy import Enemy
 import pygame
 import random
 
+base_path = os.path.dirname(os.path.abspath(__file__))
+
+image_path_1 = os.path.join(base_path, "..\..\sprites/enemy/bee/bee1.png")
+image_path_2 = os.path.join(base_path, "..\..\sprites/enemy/bee/bee2.png")
+
 bee = [
-        pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/bee/bee1.png"), 
-        pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/bee/bee2.png")
+        pygame.image.load(image_path_1), 
+        pygame.image.load(image_path_2)
     ]
 
 bee[0] = pygame.transform.scale(bee[0], (30, 30))
 bee[1] = pygame.transform.scale(bee[1], (30, 30))
 
-bee_sfx1 = pygame.mixer.Sound("C:/Users/neriy/Documents/GitHub Code/remadegalaga/galaga_sfx/05 Zako Stricken.mp3")
+sfx_path = os.path.join(base_path, "..\..\galaga_sfx/05 Zako Stricken.mp3")
+
+bee_sfx1 = pygame.mixer.Sound(sfx_path)
 
 class Bee(Enemy):
     def draw(self, win):
         for obj in self.missile_buffer:
             obj.draw(win)
+            if obj.y > 500:
+                self.missile_buffer.pop(self.missile_buffer.index(obj))
         if self.health > 0:
             if self.prev_draw_time == 0 or pygame.time.get_ticks() - self.prev_draw_time > 500:
                 if self.iter < 1:
@@ -28,14 +39,18 @@ class Bee(Enemy):
                 self.prev_draw_time = pygame.time.get_ticks()
             win.blit(bee[self.iter], (self.x, self.y))
 
-    def dive(self, win):
-        random_int = random.randint(1, 11)
-        choice = random_int % 2
-
-        # if not self.initial_dive:
-        #     self.generate_bee_curves(choice, gunship)
+    def dive(self, win, target_pos = None):       
         self.adjust_position()
-
+        if self.y > 500:
+            self.x = self.init_pos[0]
+            self.y = self.init_pos[1] - 200
+            self.moving_to_init_pos = True
+        if self.moving_to_init_pos:
+            self.move_to_init_pos()
+            if self.x == self.init_pos[0] and self.y == self.init_pos[1]:
+                self.moving_to_init_pos = False
+                self.status = ""
+            
     def lower_health(self):
         Enemy.lower_health(self)
         if self.health == 0:

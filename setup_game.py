@@ -12,29 +12,39 @@ import copy
 
 pygame.init()
 
-font = pygame.font.Font("C:/Users/neriy/Documents/GitHub Code/remadegalaga/font/Joystix.ttf", 15)
+font = pygame.font.Font("C:/Users/truec/Documents/remake_galaga/remade_galaga/font/Joystix.ttf", 15)
+font_details = pygame.font.Font("C:/Users/truec/Documents/remake_galaga/remade_galaga/font/Joystix.ttf", 10)
 
-galaga_logo = [pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/logo/galaga_1.png"),
-pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/logo/galaga_2.png"),
-pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/logo/galaga_3.png")]
+
+galaga_logo = [pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/logo/galaga_1.png"),
+pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/logo/galaga_2.png"),
+pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/logo/galaga_3.png")]
 
 galaga_logo[0] = pygame.transform.scale(galaga_logo[0], (179, 90))
 galaga_logo[1] = pygame.transform.scale(galaga_logo[1], (179, 90))
 galaga_logo[2] = pygame.transform.scale(galaga_logo[2], (179, 90))
 
+cursor_logo = pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/cursor/cursor_new.png")
+
+rescue_sfx1 = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/14 Rescue Music.mp3")
 
 width = 500
 height = 500
+
+capture_timer = 0
+death_timer = 0
+return_timer = 0
 
 clock = pygame.time.Clock()
 win = pygame.display.set_mode((width, height))
 
 wave_beam_buffer = []
 explosion_buffer = []
+player_explosion_buffer = []
 stars_buffer = []
 curve_array = []
 
-fleet = {"boss" : [], "butterfly" : [], "bee" : []}
+fleet = {"boss" : [], "butterfly" : [], "bee" : [], "gunship" : []}
 init_fleet_dive = [
     {"boss" : [], "butterfly" : [], "bee" : []},
     {"boss" : [], "butterfly" : [], "bee" : []},
@@ -43,6 +53,10 @@ init_fleet_dive = [
     {"boss" : [], "butterfly" : [], "bee" : []},
     {"boss" : [], "butterfly" : [], "bee" : []}
 ]
+living_fleet_idx = {"bee": [], "butterfly": [], "boss":[]}
+
+dive_sfx = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/04 Alien Flying.mp3")
+player_death_sfx = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/22 Miss.mp3")
 
 def is_collision_wave_beam(target, wave_beam):
     if (wave_beam.x) <= target.x < (wave_beam.x + 96) and (wave_beam.y) <= target.y <= (wave_beam.y + 160 - wave_beam.image_height):
@@ -60,12 +74,16 @@ def is_collision(obj1, obj2):
 
 
 def create_fleet(fleet, boss_cnt = 4, butterfly_cnt = 16, bee_cnt = 20):
+    print("Size of fleet: bees = %s butterfly = %s boss = %s"%(len(fleet["bee"]), len(fleet["butterfly"]), len(fleet["boss"])))
     for i in range(boss_cnt):
         fleet["boss"].append(Boss())
+        living_fleet_idx["boss"].append(i)
     for i in range(bee_cnt):
         fleet["bee"].append(Bee())
+        living_fleet_idx["bee"].append(i)
     for i in range(butterfly_cnt):
         fleet["butterfly"].append(Butterfly())
+        living_fleet_idx["butterfly"].append(i)
 
 def set_init_pos(fleet):
     set_init_pos_bee(fleet)
@@ -179,6 +197,11 @@ def score_menu(y_pos, score_1 = 0, hiscore_val = 0, score_2 = 0):
 def game_start_menu(y_pos, galaga_logo_iter):
     _1player = font.render("1 PLAYER", 1, (255, 255, 255))
     _2players = font.render("2 PLAYERS", 1, (255, 255, 255))
+
+    controls = font.render("CONTROLS", 1, (255, 255, 255))
+    move_buttons = font.render("LEFT ARROW , RIGHT ARROW : MOVE", 1, (255, 255, 255))
+    shoot_button = font.render("SPACE : SHOOT", 1, (255, 255, 255))
+
     credit = font.render("ALL CREDIT GOES TO NAMCO", 1, (255, 255, 255))
     creator_credit = font.render("MADE BY NERIYAHBUTLER", 1, (255, 255, 255))
 
@@ -186,12 +209,25 @@ def game_start_menu(y_pos, galaga_logo_iter):
 
     win.blit(_1player, (200, y_pos + 250))
     win.blit(_2players, (200, y_pos + 275))
+
+    win.blit(controls, (200, y_pos + 325))
+    win.blit(move_buttons, (80, y_pos + 350))
+    win.blit(shoot_button, (175, y_pos + 375))
+
     win.blit(credit, (100, y_pos + 425))
     win.blit(creator_credit, (125, y_pos + 450))
+
+def level_intro(level_num):
+    level_number = font.render("Level %s"%str(level_num), 1, (102, 204, 255))
+    win.blit(level_number, (200, 200))
 
 def game_start(level = 0):
     create_fleet(fleet)
     set_init_pos(fleet)
+    print("Fleet generated")
+    print("Amount of bees:", len(fleet["bee"]))
+    print("Amount of bosses:", len(fleet["boss"]))
+    print("Amount of butterflies:", len(fleet["butterfly"]))
 
 def generate_init_curves():
     for i in range(len(init_fleet_dive)):
@@ -206,7 +242,6 @@ def generate_init_curves():
                 )]
         if i == 1:
             for obj in init_fleet_dive[i]["butterfly"]:
-                print("Generating curves for butterfly object at index", str(obj))
                 fleet["butterfly"][obj].x = 0
                 fleet["butterfly"][obj].y = 0
                 fleet["butterfly"][obj].curve_queue = [BezierCurve([fleet["butterfly"][obj].x - 55, fleet["butterfly"][obj].y + 484.5],
@@ -322,8 +357,27 @@ def generate_bezier_points(bezier_curve):
         if pnt_x != 0 and pnt_y != 0:
             curve_array.append((pnt_x, pnt_y))
 
+
+def display_enemy_details(obj, win):
+    curve_queue_length = len(obj.curve_queue)
+    obj_status = obj.status
+
+    details = "curves: %s status: %s"%(curve_queue_length, obj_status)
+    _details = font_details.render(details, 1, (255, 255, 255))
+
+    win.blit(_details, (obj.x, obj.y - 10))
+
+def display_gunship_details(obj, win):
+    obj_status = obj.gunship_buffer[0].state
+
+    details = "status: %s"%(obj_status)
+    _details = font_details.render(details, 1, (255, 255, 255))
+
+    win.blit(_details, (obj.gunship_buffer[0].x, obj.gunship_buffer[0].y - 10))
+
 def generate_boss_curves(boss, gunship):
-    choice = random.randint(1, 11) % 2
+    # choice = random.randint(1, 11) % 2
+    choice = 2
     if choice == 0:
         boss.curve_queue = [BezierCurve([boss.x + 150.7, boss.y + 264], [boss.x + 134.2, boss.y + 321.6],
                                         [boss.x + 0.2, boss.y + 433],
@@ -341,7 +395,69 @@ def generate_boss_curves(boss, gunship):
                             BezierCurve([boss.x - 0.5, boss.y + 95], [boss.x - 17, boss.y + 152.6],
                                         [boss.x - 155, boss.y + 182], [boss.x - 150.7, boss.y + 264]),
                             BezierCurve([boss.x - 98, boss.y + 96], [boss.x - 106, boss.y + 25],
-                                        [boss.x - -1, boss.y + 10.5], [boss.x - 0.5, boss.y + 95]),
+                                        [boss.x + 1, boss.y + 10.5], [boss.x - 0.5, boss.y + 95]),
                             BezierCurve([boss.x, boss.y], [boss.x + 48, boss.y + 177],
                                         [boss.x - 102, boss.y + 172], [boss.x - 98, boss.y + 96])]
     # self.initial_dive = True
+
+def generate_butterfly_curves(butterfly, gunship):
+    choice = random.randint(1, 11) % 2
+    if choice == 0:
+        end_pos = [(gunship.x - random.randint(20, 50)), butterfly.y + 480]
+        butterfly.curve_queue = [BezierCurve([butterfly.x - 1, butterfly.y + 253],
+                                        [butterfly.x - 50, butterfly.y + 330],
+                                        [butterfly.x - 15, butterfly.y + 259],
+                                        end_pos),
+                            BezierCurve([butterfly.x, butterfly.y],
+                                        [butterfly.x - 75, butterfly.y + 138],
+                                        [butterfly.x + 194, butterfly.y + 93],
+                                        [butterfly.x - 1, butterfly.y + 253])]
+    else:
+        end_pos = [(gunship.x + random.randint(20, 50)), butterfly.y + 480]
+        butterfly.curve_queue = [BezierCurve([butterfly.x + 1, butterfly.y + 253],
+                                        [butterfly.x + 50, butterfly.y + 330],
+                                        [butterfly.x + 15, butterfly.y + 259],
+                                        end_pos),
+                            BezierCurve([butterfly.x, butterfly.y],
+                                        [butterfly.x + 75, butterfly.y + 138],
+                                        [butterfly.x - 194, butterfly.y + 93],
+                                        [butterfly.x + 1, butterfly.y + 253])]
+        # butterfly.initial_dive = True
+
+def generate_bee_curves(bee, gunship):
+    choice = random.randint(1, 11) % 2
+    if choice == 0:
+        bee.curve_queue = [BezierCurve([bee.x - 1, bee.y + 253],
+                                        [bee.x - 50, bee.y + 330], [bee.x - 15, bee.y + 259],
+                                        [(gunship.x - random.randint(20, 50)), bee.y + 480]),
+                            BezierCurve([bee.x, bee.y],
+                                        [bee.x - 75, bee.y + 138],
+                                        [bee.x + 194, bee.y + 93],
+                                        [bee.x - 1, bee.y + 253])]
+    else:
+        bee.curve_queue = [BezierCurve([bee.x + 1, bee.y + 253],
+                                        [bee.x + 50, bee.y + 330],
+                                        [bee.x + 15, bee.y + 259],
+                                        [(gunship.x + random.randint(20, 50)), bee.y + 480]),
+                            BezierCurve([bee.x, bee.y],
+                                        [bee.x + 75, bee.y + 138],
+                                        [bee.x - 194, bee.y + 93],
+                                        [bee.x + 1, bee.y + 253])]
+    # bee.initial_dive = True
+
+def move_gunships_to_init_pos(gunship, fleet_gunship):
+    if gunship.x != 250 - 30:
+        if gunship.x < 250 - 30:
+            gunship.x += 1
+        elif gunship.x > 250 - 30:
+            gunship.x -= 1
+    
+    if fleet_gunship.x != 250:
+        if fleet_gunship.x < 250:
+            fleet_gunship.x += 1
+        elif fleet_gunship.x > 250:
+            fleet_gunship.x -= 1
+    
+    if fleet_gunship.y < gunship.y:
+        print("Fleet gunship's y pos:", str(fleet_gunship.y))
+        fleet_gunship.y = int(fleet_gunship.y) + 1

@@ -16,6 +16,8 @@ class Enemy(Object):
     prev_draw_time = 0
 
     is_missile_fired = False
+    moving_to_init_pos = False
+
     initial_dive = False
     canInitialDive = False
     def __init__(self, x = 50, y = 50, type_input = ""):
@@ -30,19 +32,14 @@ class Enemy(Object):
         else:
             self.health = 1        
 
+
     def set_init_pos(self, init_pos):
         self.init_pos = init_pos
 
     def fire(self, target):
-        slope = (self.y - target.y)/(self.x - target.x)
-        self.missile_buffer.append(EnemyMissile((self.x, self.y), slope))
+        self.missile_buffer.append(EnemyMissile((self.x, self.y), target))
 
     def adjust_position(self, gunship = None):
-        # if len(self.curve_queue) > 1 and not self.is_missile_fired and gunship is not None:
-        #     slope = (gunship[1] - self.y)/(gunship[0] - self.x)
-        #     self.fire(slope)
-        #     self.is_missile_fired = True
- 
         if len(self.curve_queue) != 0:
             if len(self.curve_queue) == 1:
                 self.curve_queue[len(self.curve_queue) - 1].increase_velocity()
@@ -66,6 +63,8 @@ class Enemy(Object):
         self.health -= 1
 
     def move_to_init_pos(self):
+        if self.status == "Returning":
+            print("Moving to init", self.init_pos)
         if int(self.x) < int(self.init_pos[0]):
             self.x = int(self.x) + 1
         elif int(self.x) > int(self.init_pos[0]):
@@ -75,8 +74,19 @@ class Enemy(Object):
         elif int(self.y) > int(self.init_pos[1]):
             self.y = int(self.y) - 1
     
+    def is_in_init_pos(self):
+        if self.x == self.init_pos[0] and self.y == self.init_pos[1]:
+            return True
+        return False
+
     def setDead(self):
         self.isDead = True
 
     def getDead(self):
         return self.isDead
+
+    def fire(self, target_pos):
+        self.missile_buffer.append(EnemyMissile((self.init_pos[0], self.init_pos[1]), target_pos))
+
+    def set_status(self, status):
+        self.status = status

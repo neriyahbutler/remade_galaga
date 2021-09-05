@@ -1,12 +1,28 @@
 from classes.enemy.subclass.object import Object
 
+import sys
+import os
+
+from os.path import dirname, abspath
+d = dirname(dirname(dirname(abspath(__file__))))
+sys.path.append(d)
+
 import pygame
 
-explosions = [pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/enemy_death/exp1.gif"),
-pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/enemy_death/exp2.png"),
-pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/enemy_death/exp3.png"),
-pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/enemy_death/exp4.png"),
-pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/enemy/enemy_death/exp5.png")]
+base_path = os.path.dirname(os.path.abspath(__file__))
+
+image_path_1 = os.path.join(base_path, "../../../sprites/enemy/enemy_death/exp1.png")
+image_path_2 = os.path.join(base_path, "../../../sprites/enemy/enemy_death/exp2.png")
+image_path_3 = os.path.join(base_path, "../../../sprites/enemy/enemy_death/exp3.png")
+image_path_4 = os.path.join(base_path, "../../../sprites/enemy/enemy_death/exp4.png")
+image_path_5 = os.path.join(base_path, "../../../sprites/enemy/enemy_death/exp5.png")
+
+
+explosions = [pygame.image.load(image_path_1),
+pygame.image.load(image_path_2),
+pygame.image.load(image_path_3),
+pygame.image.load(image_path_4),
+pygame.image.load(image_path_5)]
 
 explosions[0] = pygame.transform.scale(explosions[0], (30, 30))
 explosions[1] = pygame.transform.scale(explosions[1], (30, 30))

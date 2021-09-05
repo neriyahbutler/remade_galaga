@@ -1,10 +1,15 @@
+import os
+
 from classes.misc_objects.subclass.object import Object
 
 import pygame
 
-missile = pygame.image.load("C:/Users/neriy/Documents/GitHub Code/remadegalaga/sprites/player/missile.gif")
+base_path = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(base_path, "../../sprites/player/missile.gif")
 
-class Missile(object):
+missile = pygame.image.load(image_path)
+
+class Missile(Object):
     def __init__(self, gunship_pos):
         self.x = gunship_pos[0]
         self.y = gunship_pos[1]
