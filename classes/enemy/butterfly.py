@@ -23,9 +23,12 @@ sfx_path = os.path.join(base_path, "../../galaga_sfx/06 Goei Stricken.mp3")
 butterfly_sfx1 = pygame.mixer.Sound(sfx_path)
 
 class Butterfly(Enemy):
-    def draw(self, win):
+    def fire(self, target):
+        super(Butterfly, self).fire(target)
+
+    def draw(self, win, pauseGame):
         for obj in self.missile_buffer:
-            obj.draw(win)
+            obj.draw(win, pauseGame)
             if obj.y > 500:
                 self.missile_buffer.pop(self.missile_buffer.index(obj))
         if self.prev_draw_time == 0 or pygame.time.get_ticks() - self.prev_draw_time > 500:
@@ -37,12 +40,6 @@ class Butterfly(Enemy):
         win.blit(butterfly[self.iter], (self.x, self.y))
 
     def dive(self, win, target_pos = None):
-        # random_int = random.randint(1, 11)
-        # choice = random_int % 2
-        # prev_x = self.x
-        # prev_y = self.y
-        # if not self.initial_dive:
-        #     self.generate_butterfly_curves(choice, gunship)
         self.adjust_position()
         if self.y > 500:
             self.x = self.init_pos[0]

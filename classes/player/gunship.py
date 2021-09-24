@@ -79,17 +79,7 @@ class Gunship(Object):
         win.blit(temp_image, (self.x, self.y))
 
     def fire_missile(self):
-        # if not self.missile_ready:
-        #     if pygame.time.get_ticks() - self.prev_missile_time > 70:
-        #         self.missile_ready = True
-        # if self.missile_ready:
-            # if len(self.missile_buffer) < 2 and (self.prev_missile_time == 0 or pygame.time.get_ticks() - self.prev_missile_time > 70):
         self.missile_buffer.append(Missile(self.get_pos()))
-        #         self.prev_missile_time = pygame.time.get_ticks()
-        #         gunship_sfx1.play()
-        # if len(self.missile_buffer) == 2:
-        #     print("Missile buffer is 2")
-        #     self.missile_ready = False
 
     def move_left(self):
         if self.x - self.speed > 0 and self.canMove:

@@ -47,10 +47,13 @@ class Boss(Enemy):
     wave_complete = False
 
     def __init__(self):
-        self.health = 2
         super(Enemy, self).__init__()
+        self.health = 2
 
-    def draw(self, win):
+    def fire(self, target):
+        super(Boss, self).fire(target)
+
+    def draw(self, win, pauseGame):
         ## Handles the positioning of the captured gunship caught by the "wave beam"
 
         ## Handles the animation of the boss for before it is hit once and after
@@ -68,7 +71,7 @@ class Boss(Enemy):
             self.prev_draw_time = pygame.time.get_ticks()
 
         for obj in self.missile_buffer:
-            obj.draw(win)
+            obj.draw(win, pauseGame)
             if obj.y > 500:
                 self.missile_buffer.pop(self.missile_buffer.index(obj))
         ## Handles the increase of the "wave beam"'s "height" for when it stretches out and retracts
@@ -87,13 +90,10 @@ class Boss(Enemy):
             boss_sfx5.play()
             self.capture_theme_played = True
         self.adjust_position()
-        # if self.wave_complete:
-        #     self.y += 1
         if self.y > 500:
             self.x = self.init_pos[0]
             self.y = self.init_pos[1] - 200
             self.moving_to_init_pos = True
-            # if self.wave_complete: self.wave_complete = False
         if self.moving_to_init_pos:
             self.move_to_init_pos()
             if self.x == self.init_pos[0] and self.y == self.init_pos[1]:

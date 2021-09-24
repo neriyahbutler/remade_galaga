@@ -1,3 +1,4 @@
+from classes.misc_objects.enemymissile import EnemyMissile
 from classes.enemy.subclass.bezier_curve import BezierCurve
 from classes.enemy.boss import Boss
 from classes.enemy.bee import Bee
@@ -176,6 +177,13 @@ def display_stars():
     for star in stars_buffer:
         star.draw(win)
 
+def display_enemy_cnt(enemy_cnt):
+    enemy_info = font_details.render("Enemy count: %s"%(enemy_cnt), 1, (255,255,255))
+    win.blit(enemy_info, (150, 482))
+
+def display_missile_cnt(missile_counter):
+    missile_info = font_details.render("Enemy missile count: %s"%(missile_counter), 1, (255,255,255))
+    win.blit(missile_info, (310, 482))
 
 def score_menu(y_pos, score_1 = 0, hiscore_val = 0, score_2 = 0):
     _1up = font.render("1UP", 1, (202, 0, 42))
@@ -221,8 +229,14 @@ def level_intro(level_num):
     level_number = font.render("Level %s"%str(level_num), 1, (102, 204, 255))
     win.blit(level_number, (200, 200))
 
+def paused_game():
+    paused_text = font.render("[ PAUSED ]", 1, (102, 204, 255))
+    win.blit(paused_text, (200, 200))
+
 def game_start(level = 0):
+    print("Creating fleet")
     create_fleet(fleet)
+    print("Setting init pos")
     set_init_pos(fleet)
     print("Fleet generated")
     print("Amount of bees:", len(fleet["bee"]))
@@ -232,6 +246,7 @@ def game_start(level = 0):
 def generate_init_curves():
     for i in range(len(init_fleet_dive)):
         if i == 0:
+            print("Generating paths for 1")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0
@@ -241,6 +256,7 @@ def generate_init_curves():
                                             [fleet["bee"][obj].x + 250, fleet["bee"][obj].y + 190]
                 )]
         if i == 1:
+            print("Generating paths for 2")
             for obj in init_fleet_dive[i]["butterfly"]:
                 fleet["butterfly"][obj].x = 0
                 fleet["butterfly"][obj].y = 0
@@ -250,6 +266,7 @@ def generate_init_curves():
                                             [fleet["butterfly"][obj].x + 209, fleet["butterfly"][obj].y + 100]
                 )]
         if i == 2:
+            print("Generating paths for 3")
             for obj in init_fleet_dive[i]["boss"]:
                 fleet["boss"][obj].x = 0
                 fleet["boss"][obj].y = 0
@@ -287,6 +304,7 @@ def generate_init_curves():
                                             [fleet["butterfly"][obj].x + 120, fleet["butterfly"][obj].y + 350],
                                             [fleet["butterfly"][obj].x + 80, fleet["butterfly"][obj].y + 290])]
         if i == 3:
+            print("Generating paths for 4")
             for obj in init_fleet_dive[i]["butterfly"]:
                 fleet["butterfly"][obj].x = 0
                 fleet["butterfly"][obj].y = 0
@@ -310,6 +328,7 @@ def generate_init_curves():
                     [fleet["butterfly"][obj].x + 361.7, fleet["butterfly"][obj].y + 320],
                     [fleet["butterfly"][obj].x + 390.4, fleet["butterfly"][obj].y + 250])]
         if i == 4:
+            print("Generating paths for 5")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0
@@ -319,6 +338,7 @@ def generate_init_curves():
                                             [fleet["bee"][obj].x + 250, fleet["bee"][obj].y + 190]
                 )]
         if i == 5:
+            print("Generating paths for 6")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0
@@ -361,8 +381,9 @@ def generate_bezier_points(bezier_curve):
 def display_enemy_details(obj, win):
     curve_queue_length = len(obj.curve_queue)
     obj_status = obj.status
+    obj_health = obj.health
 
-    details = "curves: %s status: %s"%(curve_queue_length, obj_status)
+    details = "curves: %s status: %s health: %s"%(curve_queue_length, obj_status, obj_health)
     _details = font_details.render(details, 1, (255, 255, 255))
 
     win.blit(_details, (obj.x, obj.y - 10))
@@ -459,5 +480,4 @@ def move_gunships_to_init_pos(gunship, fleet_gunship):
             fleet_gunship.x -= 1
     
     if fleet_gunship.y < gunship.y:
-        print("Fleet gunship's y pos:", str(fleet_gunship.y))
         fleet_gunship.y = int(fleet_gunship.y) + 1

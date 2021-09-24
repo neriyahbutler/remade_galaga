@@ -88,7 +88,6 @@ class PlayerClass(object):
             if pygame.time.get_ticks() - self.prev_missile_time > 70:
                 self.missile_ready = True
         if self.fire_missile:
-            # for obj in self.gunship_buffer:
             if len(obj.missile_buffer) < 2 and (self.prev_missile_time == 0 or pygame.time.get_ticks() - self.prev_missile_time > 70):
                 for obj_gunship in self.gunship_buffer:
                     obj_gunship.fire_missile()

@@ -25,9 +25,12 @@ sfx_path = os.path.join(base_path, "..\..\galaga_sfx/05 Zako Stricken.mp3")
 bee_sfx1 = pygame.mixer.Sound(sfx_path)
 
 class Bee(Enemy):
-    def draw(self, win):
+    def fire(self, target):
+        super(Bee, self).fire(target)
+
+    def draw(self, win, pauseGame):
         for obj in self.missile_buffer:
-            obj.draw(win)
+            obj.draw(win, pauseGame)
             if obj.y > 500:
                 self.missile_buffer.pop(self.missile_buffer.index(obj))
         if self.health > 0:

@@ -1,6 +1,6 @@
+from classes.misc_objects.enemymissile import EnemyMissile
 from classes.enemy.subclass.object import Object
 from classes.enemy.subclass.bezier_curve import *
-from classes.misc_objects.enemymissile import EnemyMissile
 from classes.enemy.subclass.enemy_explosion import Explosion
 
 class Enemy(Object):
@@ -36,9 +36,6 @@ class Enemy(Object):
     def set_init_pos(self, init_pos):
         self.init_pos = init_pos
 
-    def fire(self, target):
-        self.missile_buffer.append(EnemyMissile((self.x, self.y), target))
-
     def adjust_position(self, gunship = None):
         if len(self.curve_queue) != 0:
             if len(self.curve_queue) == 1:
@@ -49,15 +46,6 @@ class Enemy(Object):
                 self.y = self.curve_queue[len(self.curve_queue) - 1].calculate_point()[1]
             else:
                 self.curve_queue.pop()
-
-            # if self.curve_queue[len(self.curve_queue) - 1].t >= 1:
-            #     self.curve_queue.pop()
-            #     if len(self.curve_queue) == 0 and self.y > self.init_pos[1]:
-            #         self.x = self.init_pos[0]
-            #         self.y = -1
-            #         self.curve_queue = [
-            #             BezierCurve([self.x, self.y], [self.x, self.y], [self.x, self.init_pos[1]],
-            #                         [self.x, self.init_pos[1]])]
                         
     def lower_health(self):
         self.health -= 1
@@ -86,7 +74,10 @@ class Enemy(Object):
         return self.isDead
 
     def fire(self, target_pos):
-        self.missile_buffer.append(EnemyMissile((self.init_pos[0], self.init_pos[1]), target_pos))
+        if len(self.missile_buffer) == 0:
+            self.missile_buffer = [EnemyMissile((self.init_pos[0], self.init_pos[1]), target_pos)]
+        else:
+            self.missile_buffer = [EnemyMissile(self.missile_buffer[0].get_pos(), self.missile_buffer[0].get_target()), EnemyMissile((self.init_pos[0], self.init_pos[1]), target_pos)]
 
     def set_status(self, status):
         self.status = status
