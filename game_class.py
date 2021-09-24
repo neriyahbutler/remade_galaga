@@ -124,12 +124,12 @@ while game_bool:
                     for type in entry.keys():
                         count = 0
                         for i in range(len(entry[type])):
-                            if level_counter > 1:
+                            if level_counter > 1 and i == 2:
                                 print("entry is:", entry)
-                                print("type is:", type)
                                 print("init_fleet_dive is:", init_fleet_dive)
                                 print("i value is:", i)
                                 print("entry[type] is:", entry[type])
+                                
                             obj_index = entry[type][i]
                             # if level_counter > 1:
                             #     print("x value:", fleet[type][obj_index].x, "y value:", fleet[type][obj_index].y)
@@ -302,7 +302,8 @@ while game_bool:
             level_intro_time = 0
             level_counter += 1
 
-            # fleet = {"boss" : [], "butterfly" : [], "bee" : [], "gunship" : []}
+            mixed_type_used_index = []
+
             fleet["boss"] = []
             fleet["butterfly"] = []
             fleet["bee"] = []
@@ -310,7 +311,6 @@ while game_bool:
             living_fleet_idx["bee"] = []
             living_fleet_idx["butterfly"] = []
             living_fleet_idx["boss"] = []
-            # living_fleet_idx = {"bee": [], "butterfly": [], "boss":[]}
 
             init_fleet_dive[0]["boss"] = []
             init_fleet_dive[0]["butterfly"] = []
@@ -337,14 +337,6 @@ while game_bool:
             init_fleet_dive[5]["butterfly"] = []
             init_fleet_dive[5]["bee"] = []
 
-            # init_fleet_dive = [
-            #     {"boss" : [], "butterfly" : [], "bee" : []},
-            #     {"boss" : [], "butterfly" : [], "bee" : []},
-            #     {"boss" : [], "butterfly" : [], "bee" : []},
-            #     {"boss" : [], "butterfly" : [], "bee" : []},
-            #     {"boss" : [], "butterfly" : [], "bee" : []},
-            #     {"boss" : [], "butterfly" : [], "bee" : []}
-            # ]
 
         if len(player_one.gunship_buffer) > 0:
             if player_one.gunship_buffer[0].state == "Capturing":
