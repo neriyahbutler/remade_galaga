@@ -34,13 +34,13 @@ class EnemyMissile(Object):
             else:
                 self.x += 0.02 * 40
             self.y += 0.1 * 40
-        enemy_details_1 = font.render("Slope: %s"%(str(self.slope)), 1, (255, 255, 255))
-        enemy_details_2 = font.render("X: %s"%(str(self.x)), 1, (255, 255, 255))
-        enemy_details_3 = font.render("Y: %s"%(str(self.y)), 1, (255, 255, 255))
+        # enemy_details_1 = font.render("Slope: %s"%(str(self.slope)), 1, (255, 255, 255))
+        # enemy_details_2 = font.render("X: %s"%(str(self.x)), 1, (255, 255, 255))
+        # enemy_details_3 = font.render("Y: %s"%(str(self.y)), 1, (255, 255, 255))
 
-        win.blit(enemy_details_1, (self.x + 10, self.y - 30))
-        win.blit(enemy_details_2, (self.x + 10, self.y - 20))
-        win.blit(enemy_details_3, (self.x + 10, self.y - 10))
+        # win.blit(enemy_details_1, (self.x + 10, self.y - 30))
+        # win.blit(enemy_details_2, (self.x + 10, self.y - 20))
+        # win.blit(enemy_details_3, (self.x + 10, self.y - 10))
         win.blit(enemy_missile, (self.x, self.y))
 
     def get_pos(self):

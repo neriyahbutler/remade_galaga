@@ -21,7 +21,7 @@ isFleetGenerated = False
 # Variables for handling the menu
 pauseGame = False
 
-inGameStartMenu = True
+inGameStartMenu = False
 cursorDisplay = False
 cursor_y_pos = 262
 
@@ -37,7 +37,10 @@ level_sfx_path = os.path.join(base_path, "galaga_sfx/02 Start Music.mp3")
 level_sfx1 = pygame.mixer.Sound(level_sfx_path)
 
 gameStart = True
-level_intro_done = False
+level_intro_done = True
+playerStatsDisplay = False
+
+gameover_time = 0
 
 level_intro_time = 0
 level_counter = 1
@@ -123,17 +126,8 @@ while game_bool:
                 if init_fleet_dive.index(entry) == entry_index:
                     for type in entry.keys():
                         count = 0
-                        for i in range(len(entry[type])):
-                            if level_counter > 1 and i == 2:
-                                print("entry is:", entry)
-                                print("init_fleet_dive is:", init_fleet_dive)
-                                print("i value is:", i)
-                                print("entry[type] is:", entry[type])
-                                
+                        for i in range(len(entry[type])):                                
                             obj_index = entry[type][i]
-                            # if level_counter > 1:
-                            #     print("x value:", fleet[type][obj_index].x, "y value:", fleet[type][obj_index].y)
-                            #     print("Current status of enemy:", fleet[type][obj_index].status)
                             if fleet[type][obj_index].status != "Diving":
                                 if i == 0:
                                     fleet[type][obj_index].status = "Diving"
@@ -177,7 +171,7 @@ while game_bool:
                     for i in range(len(fleet[fleet_type])):
                         fleet[fleet_type][i].status = ""
                 enemy_status_reset = True
-                
+
             if not deathBoolean and not captureBoolean and not returningBoolean and not pauseGame:
                 # If this condition is met, then the static diving sequence for the beginning of the level will take place first
                 if not firstDiveDone or not secondDiveDone:
@@ -212,7 +206,7 @@ while game_bool:
                                     prevDiveTime = pygame.time.get_ticks()
                 # The normal diving algo that runs once the initial diving sequence has been finished/can't run
                 else:
-                    if (pygame.time.get_ticks() - prevDiveTime) > 3000:
+                    if (pygame.time.get_ticks() - prevDiveTime) > 3000 - level_counter * (150):
                         x = random.randint(0, 4)
 
                         if (x == 0 or x == 3) and len(living_fleet_idx["bee"]) > 0:
@@ -231,7 +225,6 @@ while game_bool:
                             fleet["butterfly"][butterfly_it].status = "Diving"
                             fleet["butterfly"][butterfly_it].fire(player)
 
-
                             prevDiveTime = pygame.time.get_ticks()
 
                         if x == 2 and len(living_fleet_idx["boss"]) > 0:
@@ -243,14 +236,21 @@ while game_bool:
 
                             prevDiveTime = pygame.time.get_ticks()
 
+        handle_level_logos(win, level_counter)
+
         enemy_cnt = 0
         # For handling collisions for the enemy's missiles and the boss's wave beam
         for enemy_type in fleet.keys():
             if enemy_type != "gunship":
                 for obj in fleet[enemy_type]:
                     if not obj.getDead():
+
                         enemy_alive_cnt += 1
                         missile_cnt += len(obj.missile_buffer)
+
+                        # if obj.health < 0:
+                        #     print("Enemy found that should be dead")
+
                         if obj.status == "Diving" and enemies_entering == False and not pauseGame:
                             if enemy_type == "boss" and obj.y > 300 and not obj.capture_checked:
                                 # capture_choice = random.randint(0, 10) % 2
@@ -262,6 +262,7 @@ while game_bool:
                             obj.dive(win, player_one)
                         if obj.status == "Beaming" and enemies_entering == False and len(obj.wave_beam_buffer) == 0 and not pauseGame:
                             obj.status = "Diving"
+                            # boss_capture_iter = -1
                         if not obj.getDead() and obj.x != 0 and obj.y != 0:
                             obj.draw(win, pauseGame)
                             if debug:
@@ -278,9 +279,17 @@ while game_bool:
                                 player_one.decrease_lives()
                                 death_timer = pygame.time.get_ticks()
 
+        if deathBoolean and player_one.lives < 0:
+            game_over()
+            if gameover_time == 0:
+                gameover_time = pygame.time.get_ticks()
+            if pygame.time.get_ticks() - gameover_time > 4000:
+                gameStart = False
+                playerStatsDisplay = True
+
         if pygame.time.get_ticks() - death_timer > 3000 and player_one.lives >= 0:
             deathBoolean = False
-            
+        
         if pygame.time.get_ticks() - capture_timer > 4000 and player_one.lives >= 0 and captureBoolean == True:
             captureBoolean = False
             player_one.decrease_lives()
@@ -301,6 +310,7 @@ while game_bool:
             entry_index = 0
             level_intro_time = 0
             level_counter += 1
+            boss_capture_iter = -1
 
             mixed_type_used_index = []
 
@@ -341,8 +351,10 @@ while game_bool:
         if len(player_one.gunship_buffer) > 0:
             if player_one.gunship_buffer[0].state == "Capturing":
                 captureBoolean = True
+                # print("Capture Boss Iter [CAPTURING]:", boss_capture_iter)
                 player_one.draw(win, True, fleet["boss"][boss_capture_iter].get_pos())
             elif player_one.gunship_buffer[0].state == "Captured":
+                # print("Capture Boss Iter [CAPTURED]:", boss_capture_iter)
                 captureBoolean = True
                 player_one.draw(win, True, fleet["boss"][boss_capture_iter].get_pos())
             elif not deathBoolean:
@@ -370,6 +382,7 @@ while game_bool:
         except:
             print("Boss doesn't exist")
 
+        # For handling drawing the "wavebeam" and the collision with the gunship
         if len(fleet["boss"]) > 0:
             for obj in fleet["boss"][boss_capture_iter].wave_beam_buffer:
                 for gunship_obj in player_one.gunship_buffer:
@@ -378,6 +391,8 @@ while game_bool:
                         player_one.set_state("Capturing")
                         deathBoolean = True
                         capture_timer = pygame.time.get_ticks()
+            # if len(fleet["boss"][boss_capture_iter].wave_beam_buffer) == 0:
+            #     boss_capture_iter = -1
 
         # Why is the y value in the negatives?
         if len(fleet["boss"]) > 0 and len(player_one.gunship_buffer) > 0:
@@ -404,24 +419,29 @@ while game_bool:
             for enemy_type in fleet.keys():
                 for enemy in fleet[enemy_type]:
                     try:
-                        if is_collision(missile, enemy) and not enemy.getDead():
+                        if is_collision(missile, enemy) and (not enemy.getDead() or enemy.health <= 0):
                             enemy.lower_health()
+                            player_one.increase_shots_hit()
                             if enemy.health == 0 or enemy.health < 0:
                                 if enemy.init_pos == [enemy.x, enemy.y]:
-                                    if enemy_type == "bee":
+                                    if enemy_type == "bee" and not enemy.isDead:
                                         player_one.set_score(player_one.get_score() + 50)
-                                    elif enemy_type == "boss":
+                                    elif enemy_type == "boss" and not enemy.isDead:
                                         player_one.set_score(player_one.get_score() + 150)
                                     else:
-                                        player_one.set_score(player_one.get_score() + 80)
+                                        if not enemy.isDead: 
+                                            player_one.set_score(player_one.get_score() + 80)
                                 else:
-                                    if enemy_type == "boss":
+                                    if enemy_type == "boss" and not enemy.isDead:
                                         player_one.set_score(player_one.get_score() + 400)
-                                    elif enemy_type == "bee":
+                                    elif enemy_type == "bee" and not enemy.isDead:
                                         player_one.set_score(player_one.get_score() + 100)
                                     else:
-                                        player_one.set_score(player_one.get_score() + 160)
+                                        if not enemy.isDead:
+                                            player_one.set_score(player_one.get_score() + 160)
                                 if enemy_type == "boss" and fleet["boss"].index(enemy) == boss_capture_iter:
+                                    boss_capture_iter = -1
+                                    print("Gunship should be freed")
                                     rescue_sfx1.play()
                                     fleet["gunship"][0].set_state("Returning_1")
                                     returningBoolean = True
@@ -429,7 +449,8 @@ while game_bool:
                                 # player_one.set_score(player_one.get_score() + 100)
                                 living_enemy_index = living_fleet_idx[enemy_type].index(fleet[enemy_type].index(enemy))
                                 living_fleet_idx[enemy_type].pop(living_enemy_index)
-                                enemy.setDead()
+                                # enemy.setDead()
+                                enemy.isDead = True
                                 explosion_buffer.append(Explosion(enemy.get_pos()))
                             player.missile_buffer.pop(player.missile_buffer.index(missile))
                     except Exception as e:
@@ -453,6 +474,8 @@ while game_bool:
                 pauseGame = False
             else:
                 pauseGame = True 
+    elif playerStatsDisplay:
+        display_player_stats(player_one.shots_fired, player_one.shots_hit)
 
     if score_menu_y_pos >= 10:
         score_menu_y_pos -= 2

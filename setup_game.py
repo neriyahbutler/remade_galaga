@@ -25,6 +25,22 @@ galaga_logo[0] = pygame.transform.scale(galaga_logo[0], (179, 90))
 galaga_logo[1] = pygame.transform.scale(galaga_logo[1], (179, 90))
 galaga_logo[2] = pygame.transform.scale(galaga_logo[2], (179, 90))
 
+level_logos = [
+    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_1.png"),
+    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_2.png"),
+    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_3.png"),
+    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_4.png"),
+    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_5.png"),
+    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_6.png")
+]
+
+level_logos[0] = pygame.transform.scale(level_logos[0], (25,25))
+level_logos[1] = pygame.transform.scale(level_logos[1], (25,25))
+level_logos[2] = pygame.transform.scale(level_logos[2], (25,25))
+level_logos[3] = pygame.transform.scale(level_logos[3], (25,25))
+level_logos[4] = pygame.transform.scale(level_logos[4], (25,25))
+level_logos[5] = pygame.transform.scale(level_logos[5], (25,25))
+
 cursor_logo = pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/cursor/cursor_new.png")
 
 rescue_sfx1 = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/14 Rescue Music.mp3")
@@ -56,8 +72,53 @@ init_fleet_dive = [
 ]
 living_fleet_idx = {"bee": [], "butterfly": [], "boss":[]}
 
+level_logo_indicator = [0,0,0,0,0,0]
+
 dive_sfx = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/04 Alien Flying.mp3")
 player_death_sfx = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/22 Miss.mp3")
+
+def handle_level_logos(win, level_number):
+    temp_level_num = level_number
+    print("temp_level_num:", temp_level_num)
+
+    level_logo_indicator[0] = temp_level_num // 50
+    temp_level_num -= 50 * (temp_level_num // 50) 
+    print("temp_level_num:", temp_level_num)
+    
+    level_logo_indicator[1] = temp_level_num // 30
+    temp_level_num -= 30 * (temp_level_num // 30)
+    print("temp_level_num:", temp_level_num)
+
+    level_logo_indicator[2] = temp_level_num // 20
+    temp_level_num -= 20 *(temp_level_num // 20)
+    print("temp_level_num:", temp_level_num)
+
+    level_logo_indicator[3] = temp_level_num // 10
+    temp_level_num -= 10 * (temp_level_num // 10)
+    print("temp_level_num:", temp_level_num)
+
+    level_logo_indicator[4] = temp_level_num // 5
+    temp_level_num -= 5 * (temp_level_num // 5)
+    print("temp_level_num:", temp_level_num)
+
+    level_logo_indicator[5] = temp_level_num
+
+    print("Level indicator:", level_logo_indicator)
+
+    x_pos = 470
+    y_pos = 470
+
+    for x in range(len(level_logo_indicator)):
+        for y in range(level_logo_indicator[len(level_logo_indicator) - 1 - x]):
+            win.blit(level_logos[x], (x_pos, y_pos))
+            if x < 2:
+                x_pos -= 12
+            elif x == 2:
+                x_pos -= 23
+            else:
+                x_pos -= 25
+# def load_level_logo(level_number):
+    
 
 def is_collision_wave_beam(target, wave_beam):
     if (wave_beam.x) <= target.x < (wave_beam.x + 96) and (wave_beam.y) <= target.y <= (wave_beam.y + 160 - wave_beam.image_height):
@@ -233,20 +294,52 @@ def paused_game():
     paused_text = font.render("[ PAUSED ]", 1, (102, 204, 255))
     win.blit(paused_text, (200, 200))
 
+def game_over():
+    game_over_display = font.render("Game Over", 1, (102, 204, 255))
+    win.blit(game_over_display, (200, 200))
+
+def display_player_stats(shots_fired, shots_hit):
+    results_title_display = font.render("-Results-", 1, (202, 0, 42))
+
+    shots_fired_display = font.render("Shots fired", 1, (255, 255, 0))
+    shots_fired_val = font.render(str(shots_fired), 1, (255, 255, 0))
+
+    shots_hit_display = font.render("Number of Hits", 1, (255, 255, 0))
+    shots_hit_val = font.render(str(shots_hit), 1, (255, 255, 0))
+
+    hit_miss_ratio_display = font.render("Hit-Miss Ratio", 1, (255, 255, 255))
+    shots_ratio = 0
+    if shots_fired != 0:
+        shots_ratio = round(float(shots_hit/shots_fired), 1)
+    hit_miss_ratio_val = font.render((str(shots_ratio) + "%"), 1, (255, 255, 255))
+
+    win.blit(results_title_display, (200, 200))
+
+    win.blit(shots_fired_display, (100, 240))
+    win.blit(shots_fired_val, (400, 240))
+
+    win.blit(shots_hit_display, (100, 280))
+    win.blit(shots_hit_val, (400, 280))
+
+    win.blit(hit_miss_ratio_display, (100, 320))
+    win.blit(hit_miss_ratio_val, (400, 320))
+    
+
+
 def game_start(level = 0):
-    print("Creating fleet")
+    # print("Creating fleet")
     create_fleet(fleet)
-    print("Setting init pos")
+    # print("Setting init pos")
     set_init_pos(fleet)
-    print("Fleet generated")
-    print("Amount of bees:", len(fleet["bee"]))
-    print("Amount of bosses:", len(fleet["boss"]))
-    print("Amount of butterflies:", len(fleet["butterfly"]))
+    # print("Fleet generated")
+    # print("Amount of bees:", len(fleet["bee"]))
+    # print("Amount of bosses:", len(fleet["boss"]))
+    # print("Amount of butterflies:", len(fleet["butterfly"]))
 
 def generate_init_curves():
     for i in range(len(init_fleet_dive)):
         if i == 0:
-            print("Generating paths for 1")
+            # print("Generating paths for 1")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0
@@ -256,7 +349,7 @@ def generate_init_curves():
                                             [fleet["bee"][obj].x + 250, fleet["bee"][obj].y + 190]
                 )]
         if i == 1:
-            print("Generating paths for 2")
+            # print("Generating paths for 2")
             for obj in init_fleet_dive[i]["butterfly"]:
                 fleet["butterfly"][obj].x = 0
                 fleet["butterfly"][obj].y = 0
@@ -266,7 +359,7 @@ def generate_init_curves():
                                             [fleet["butterfly"][obj].x + 209, fleet["butterfly"][obj].y + 100]
                 )]
         if i == 2:
-            print("Generating paths for 3")
+            # print("Generating paths for 3")
             for obj in init_fleet_dive[i]["boss"]:
                 fleet["boss"][obj].x = 0
                 fleet["boss"][obj].y = 0
@@ -304,7 +397,7 @@ def generate_init_curves():
                                             [fleet["butterfly"][obj].x + 120, fleet["butterfly"][obj].y + 350],
                                             [fleet["butterfly"][obj].x + 80, fleet["butterfly"][obj].y + 290])]
         if i == 3:
-            print("Generating paths for 4")
+            # print("Generating paths for 4")
             for obj in init_fleet_dive[i]["butterfly"]:
                 fleet["butterfly"][obj].x = 0
                 fleet["butterfly"][obj].y = 0
@@ -328,7 +421,7 @@ def generate_init_curves():
                     [fleet["butterfly"][obj].x + 361.7, fleet["butterfly"][obj].y + 320],
                     [fleet["butterfly"][obj].x + 390.4, fleet["butterfly"][obj].y + 250])]
         if i == 4:
-            print("Generating paths for 5")
+            # print("Generating paths for 5")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0
@@ -338,7 +431,7 @@ def generate_init_curves():
                                             [fleet["bee"][obj].x + 250, fleet["bee"][obj].y + 190]
                 )]
         if i == 5:
-            print("Generating paths for 6")
+            # print("Generating paths for 6")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0

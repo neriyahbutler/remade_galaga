@@ -21,12 +21,18 @@ gunship_sfx1 = pygame.mixer.Sound(sfx_path)
 
 class PlayerClass(object):
     life_x = 5
+
     lives = 0
     score = 0
+    shots_fired = 0
+    shots_hit = 0
+
     death_timer = 0
     prev_missile_time = 0
+
     gunship_buffer = []
     lives_buffer = []
+
     missile_ready = True
 
     state = ""
@@ -91,6 +97,7 @@ class PlayerClass(object):
             if len(obj.missile_buffer) < 2 and (self.prev_missile_time == 0 or pygame.time.get_ticks() - self.prev_missile_time > 70):
                 for obj_gunship in self.gunship_buffer:
                     obj_gunship.fire_missile()
+                    self.shots_fired += 1
 
                 gunship_sfx1.play()
                 self.prev_missile_time = pygame.time.get_ticks()
@@ -114,3 +121,6 @@ class PlayerClass(object):
         self.state = state
         for obj in self.gunship_buffer:
             obj.set_state(state)
+
+    def increase_shots_hit(self):
+        self.shots_hit += 1
