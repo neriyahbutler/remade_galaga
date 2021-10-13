@@ -20,7 +20,7 @@ bee = [
 bee[0] = pygame.transform.scale(bee[0], (30, 30))
 bee[1] = pygame.transform.scale(bee[1], (30, 30))
 
-sfx_path = os.path.join(base_path, "..\..\galaga_sfx/05 Zako Stricken.mp3")
+sfx_path = os.path.join(base_path, "..\..\galaga_sfx/wav/05 Zako Stricken.wav")
 
 bee_sfx1 = pygame.mixer.Sound(sfx_path)
 

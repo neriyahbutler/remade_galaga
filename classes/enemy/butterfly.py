@@ -18,7 +18,7 @@ butterfly = [
 butterfly[0] = pygame.transform.scale(butterfly[0], (30, 30))
 butterfly[1] = pygame.transform.scale(butterfly[1], (30, 30))
 
-sfx_path = os.path.join(base_path, "../../galaga_sfx/06 Goei Stricken.mp3")
+sfx_path = os.path.join(base_path, "../../galaga_sfx/wav/06 Goei Stricken.wav")
 
 butterfly_sfx1 = pygame.mixer.Sound(sfx_path)
 
