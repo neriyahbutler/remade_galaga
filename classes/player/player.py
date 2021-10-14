@@ -16,7 +16,7 @@ gunship = [
 
 gunship[1] = pygame.transform.scale(gunship[1], (30, 30))
 
-sfx_path = os.path.join(base_path, "..\..\galaga_sfx/13 Fighter Shot1.mp3")
+sfx_path = os.path.join(base_path, "..\..\galaga_sfx/wav/13 Fighter Shot1.wav")
 gunship_sfx1 = pygame.mixer.Sound(sfx_path)
 
 class PlayerClass(object):

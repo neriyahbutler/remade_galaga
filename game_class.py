@@ -1,11 +1,10 @@
 import os
 
-from math import exp
+from setup_game import *
 
 from classes.enemy.subclass.enemy_explosion import Explosion
 from classes.misc_objects.explosion import PlayerExplosion
 from classes.player.player import PlayerClass
-from setup_game import *
 
 debug = False
 
@@ -21,7 +20,7 @@ isFleetGenerated = False
 # Variables for handling the menu
 pauseGame = False
 
-inGameStartMenu = False
+inGameStartMenu = True
 cursorDisplay = False
 cursor_y_pos = 262
 
@@ -32,12 +31,12 @@ galaga_logo_iter = 0
 
 # Variables for handling the gameplay/levels
 base_path = os.path.dirname(os.path.abspath(__file__))
-level_sfx_path = os.path.join(base_path, "galaga_sfx/02 Start Music.mp3")
+level_sfx_path = os.path.join(base_path, "galaga_sfx/wav/02 Start Music.wav")
 
 level_sfx1 = pygame.mixer.Sound(level_sfx_path)
 
 gameStart = True
-level_intro_done = True
+level_intro_done = False
 playerStatsDisplay = False
 
 gameover_time = 0

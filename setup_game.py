@@ -6,32 +6,52 @@ from classes.enemy.butterfly import Butterfly
 from classes.player.gunship import Gunship
 from classes.misc_objects.star import Star
 
+import os
 import pygame
 import math
 import random
 import copy
 
+print(pygame.version.ver)
+pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
 
-font = pygame.font.Font("C:/Users/truec/Documents/remake_galaga/remade_galaga/font/Joystix.ttf", 15)
-font_details = pygame.font.Font("C:/Users/truec/Documents/remake_galaga/remade_galaga/font/Joystix.ttf", 10)
+base_path = os.path.dirname(os.path.abspath(__file__))
 
+font_path = os.path.join(base_path, "./font/Joystix.ttf")
+font = pygame.font.Font(font_path, 15)
+font_details = pygame.font.Font(font_path, 10)
 
-galaga_logo = [pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/logo/galaga_1.png"),
-pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/logo/galaga_2.png"),
-pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/logo/galaga_3.png")]
+galaga_logo_paths = [
+    os.path.join(base_path, "./sprites/logo/galaga_1.png"),
+    os.path.join(base_path, "./sprites/logo/galaga_2.png"),
+    os.path.join(base_path, "./sprites/logo/galaga_3.png")  
+]
+
+galaga_logo = [pygame.image.load(galaga_logo_paths[0]),
+pygame.image.load(galaga_logo_paths[1]),
+pygame.image.load(galaga_logo_paths[2])]
 
 galaga_logo[0] = pygame.transform.scale(galaga_logo[0], (179, 90))
 galaga_logo[1] = pygame.transform.scale(galaga_logo[1], (179, 90))
 galaga_logo[2] = pygame.transform.scale(galaga_logo[2], (179, 90))
 
+level_logos_path = [
+    os.path.join(base_path, "./sprites/level/level_1.png"),
+    os.path.join(base_path, "./sprites/level/level_2.png"),
+    os.path.join(base_path, "./sprites/level/level_3.png"),
+    os.path.join(base_path, "./sprites/level/level_4.png"),
+    os.path.join(base_path, "./sprites/level/level_5.png"),
+    os.path.join(base_path, "./sprites/level/level_6.png")
+]
+
 level_logos = [
-    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_1.png"),
-    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_2.png"),
-    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_3.png"),
-    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_4.png"),
-    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_5.png"),
-    pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/level/level_6.png")
+    pygame.image.load(level_logos_path[0]),
+    pygame.image.load(level_logos_path[1]),
+    pygame.image.load(level_logos_path[2]),
+    pygame.image.load(level_logos_path[3]),
+    pygame.image.load(level_logos_path[4]),
+    pygame.image.load(level_logos_path[5])
 ]
 
 level_logos[0] = pygame.transform.scale(level_logos[0], (25,25))
@@ -41,9 +61,11 @@ level_logos[3] = pygame.transform.scale(level_logos[3], (25,25))
 level_logos[4] = pygame.transform.scale(level_logos[4], (25,25))
 level_logos[5] = pygame.transform.scale(level_logos[5], (25,25))
 
-cursor_logo = pygame.image.load("C:/Users/truec/Documents/remake_galaga/remade_galaga/sprites/cursor/cursor_new.png")
+cursor_logo_path = os.path.join(base_path, "./sprites/cursor/cursor_new.png")
+cursor_logo = pygame.image.load(cursor_logo_path)
 
-rescue_sfx1 = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/14 Rescue Music.mp3")
+rescue_sfx1_path = os.path.join(base_path, "./galaga_sfx/wav/14 Rescue Music.wav")
+rescue_sfx1 = pygame.mixer.Sound(rescue_sfx1_path)
 
 width = 500
 height = 500
@@ -74,36 +96,40 @@ living_fleet_idx = {"bee": [], "butterfly": [], "boss":[]}
 
 level_logo_indicator = [0,0,0,0,0,0]
 
-dive_sfx = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/04 Alien Flying.mp3")
-player_death_sfx = pygame.mixer.Sound("C:/Users/truec/Documents/remake_galaga/remade_galaga/galaga_sfx/22 Miss.mp3")
+dive_sfx_path = os.path.join(base_path, "./galaga_sfx/wav/04 Alien Flying.wav")
+dive_sfx = pygame.mixer.Sound(dive_sfx_path)
+
+player_death_sfx_path = os.path.join(base_path, "./galaga_sfx/wav/22 Miss.wav")
+player_death_sfx = pygame.mixer.Sound(player_death_sfx_path)
+
 
 def handle_level_logos(win, level_number):
     temp_level_num = level_number
-    print("temp_level_num:", temp_level_num)
+    # print("temp_level_num:", temp_level_num)
 
     level_logo_indicator[0] = temp_level_num // 50
     temp_level_num -= 50 * (temp_level_num // 50) 
-    print("temp_level_num:", temp_level_num)
+    # print("temp_level_num:", temp_level_num)
     
     level_logo_indicator[1] = temp_level_num // 30
     temp_level_num -= 30 * (temp_level_num // 30)
-    print("temp_level_num:", temp_level_num)
+    # print("temp_level_num:", temp_level_num)
 
     level_logo_indicator[2] = temp_level_num // 20
     temp_level_num -= 20 *(temp_level_num // 20)
-    print("temp_level_num:", temp_level_num)
+    # print("temp_level_num:", temp_level_num)
 
     level_logo_indicator[3] = temp_level_num // 10
     temp_level_num -= 10 * (temp_level_num // 10)
-    print("temp_level_num:", temp_level_num)
+    # print("temp_level_num:", temp_level_num)
 
     level_logo_indicator[4] = temp_level_num // 5
     temp_level_num -= 5 * (temp_level_num // 5)
-    print("temp_level_num:", temp_level_num)
+    # print("temp_level_num:", temp_level_num)
 
     level_logo_indicator[5] = temp_level_num
 
-    print("Level indicator:", level_logo_indicator)
+    # print("Level indicator:", level_logo_indicator)
 
     x_pos = 470
     y_pos = 470
@@ -118,12 +144,12 @@ def handle_level_logos(win, level_number):
             else:
                 x_pos -= 25
 # def load_level_logo(level_number):
-    
 
 def is_collision_wave_beam(target, wave_beam):
     if (wave_beam.x) <= target.x < (wave_beam.x + 96) and (wave_beam.y) <= target.y <= (wave_beam.y + 160 - wave_beam.image_height):
         return True
     return False
+
 
 def is_collision(obj1, obj2):
     obj1_pos = obj1.get_pos()
