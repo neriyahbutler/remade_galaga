@@ -6,13 +6,16 @@ from classes.enemy.butterfly import Butterfly
 from classes.player.gunship import Gunship
 from classes.misc_objects.star import Star
 
+from firebase import firebase
+firebase = firebase.FirebaseApplication("https://galagadb-default-rtdb.firebaseio.com/", None)
+
+
 import os
 import pygame
 import math
 import random
 import copy
 
-print(pygame.version.ver)
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
 
@@ -102,6 +105,17 @@ dive_sfx = pygame.mixer.Sound(dive_sfx_path)
 player_death_sfx_path = os.path.join(base_path, "./galaga_sfx/wav/22 Miss.wav")
 player_death_sfx = pygame.mixer.Sound(player_death_sfx_path)
 
+
+def upload_player_score(player_name, player_score):
+    data = {
+        'player_name': player_name,
+        'player_score': player_score
+    }
+
+    result = firebase.post("galagadb-default-rtdb/Test", data)
+
+    output_res = firebase.get("galagadb-default-rtdb/Test", "")
+    print(output_res.values())
 
 def handle_level_logos(win, level_number):
     temp_level_num = level_number
@@ -351,21 +365,14 @@ def display_player_stats(shots_fired, shots_hit):
     win.blit(hit_miss_ratio_val, (400, 320))
     
 
-
 def game_start(level = 0):
-    # print("Creating fleet")
     create_fleet(fleet)
-    # print("Setting init pos")
     set_init_pos(fleet)
-    # print("Fleet generated")
-    # print("Amount of bees:", len(fleet["bee"]))
-    # print("Amount of bosses:", len(fleet["boss"]))
-    # print("Amount of butterflies:", len(fleet["butterfly"]))
+
 
 def generate_init_curves():
     for i in range(len(init_fleet_dive)):
         if i == 0:
-            # print("Generating paths for 1")
             for obj in init_fleet_dive[i]["bee"]:
                 fleet["bee"][obj].x = 0
                 fleet["bee"][obj].y = 0
@@ -375,7 +382,6 @@ def generate_init_curves():
                                             [fleet["bee"][obj].x + 250, fleet["bee"][obj].y + 190]
                 )]
         if i == 1:
-            # print("Generating paths for 2")
             for obj in init_fleet_dive[i]["butterfly"]:
                 fleet["butterfly"][obj].x = 0
                 fleet["butterfly"][obj].y = 0
@@ -385,7 +391,6 @@ def generate_init_curves():
                                             [fleet["butterfly"][obj].x + 209, fleet["butterfly"][obj].y + 100]
                 )]
         if i == 2:
-            # print("Generating paths for 3")
             for obj in init_fleet_dive[i]["boss"]:
                 fleet["boss"][obj].x = 0
                 fleet["boss"][obj].y = 0

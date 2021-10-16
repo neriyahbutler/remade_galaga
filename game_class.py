@@ -70,6 +70,8 @@ mixed_type_used_index = []
 
 live_count = 3
 
+upload_player_score("NZB", 300)
+
 # Loop for handling the game
 while game_bool:
     win.fill((0))
